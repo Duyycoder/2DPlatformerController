@@ -33575,7 +33575,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.206153, y: 12.586994, z: -10.064921}
+  m_LocalPosition: {x: 8.273153, y: 13.236994, z: -10.064921}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -33672,7 +33672,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 793188857}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.206153, y: 12.586994, z: -10.064921}
+  m_LocalPosition: {x: 8.273153, y: 13.236994, z: -10.064921}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33820,7 +33820,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1451040757}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.22, y: 10.02, z: 0}
+  m_LocalPosition: {x: -0.153, y: 10.67, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33867,16 +33867,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11f74af21f932114bbb3607843bd756a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  amountOfJump: 4
+  amountOfJump: 1
   groundCheckRadious: 0.3
   movemetSpeed: 10
   jumpForce: 16
+  wallHopDirection: {x: 1, y: 0.5}
+  wallJumpDirection: {x: 1, y: 2}
   whatIsGround:
     serializedVersion: 2
     m_Bits: 64
   groundCheck: {fileID: 1936000138}
   wallCheckDistance: 0.4
   wallSlideSpeed: 2
+  movementForceInAir: 30
+  airDragMultiplier: 0.95
+  variableJumpHeightMultiplier: 0.5
+  wallHopForce: 2
+  wallJumpForce: 2
   wallCheck: {fileID: 571594456}
 --- !u!95 &1451040763
 Animator:

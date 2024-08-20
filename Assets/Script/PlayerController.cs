@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -10,6 +11,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private bool isFacingRight = true;
     private int amountOfJumpLeft;
+    private int facingDirection = 1;
+    
     private bool isWalking;
     private bool isGrounded;
     private bool isTouchingWall;
@@ -18,22 +21,37 @@ public class PlayerController : MonoBehaviour
     public int amountOfJump = 1;
     
     private Animator anim;
+
+
+    
     public float groundCheckRadious;
     public float movemetSpeed = 10.0f;
-    
     public float jumpForce = 16.0f;
+    
+    
+    
+    public Vector2 wallHopDirection;
+    public Vector2 wallJumpDirection;
     public LayerMask whatIsGround;
     public Transform groundCheck;
     public float wallCheckDistance;
     public float wallSlideSpeed;
+    public float movementForceInAir;
+    public float airDragMultiplier = 0.95f;
+    public float variableJumpHeightMultiplier = 0.5f;
+    public float wallHopForce;
+    public float wallJumpForce;
+    
 
-    public Transform wallCheck;
+    public Transform wallCheck; 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         amountOfJumpLeft = amountOfJump;
+        wallJumpDirection.Normalize();
+        wallHopDirection.Normalize();   
 
     }
 
@@ -54,11 +72,16 @@ public class PlayerController : MonoBehaviour
     }
 
     private void CheckInput()
-    {
+    {   
         movementInputDerection = Input.GetAxisRaw("Horizontal");
         if (Input.GetButtonDown("Jump"))
         {
             Jump();
+        }
+
+        if (Input.GetButtonUp("Jump"))
+        {
+            rb.velocity= new Vector2(rb.velocity.x, rb.velocity.y * variableJumpHeightMultiplier);
         }
     }
 
@@ -94,6 +117,17 @@ public class PlayerController : MonoBehaviour
         if (isGrounded)
         {
             rb.velocity = new Vector2(movemetSpeed * movementInputDerection, rb.velocity.y);
+        }else if (!isGrounded && !isWallSliding && movementInputDerection != 0)
+        {
+            Vector2 forceToAdd = new Vector2(movementForceInAir * movementInputDerection, 0);
+            rb.AddForce(forceToAdd);
+            if (Mathf.Abs(rb.velocity.x)>movemetSpeed)
+            {
+                rb.velocity = new Vector2(movemetSpeed * movementInputDerection, rb.velocity.y);
+            }
+        } else if (!isGrounded && !isWallSliding && movementInputDerection == 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x * airDragMultiplier, rb.velocity.y);
         }
         
 
@@ -115,23 +149,37 @@ public class PlayerController : MonoBehaviour
     }
     private void Flip()
     {
+        facingDirection *= -1;
         isFacingRight = !isFacingRight;
         transform.Rotate(0f, 180f,0f);
     }
 
     private void Jump()
     {
-        if (canJump)
+        if (canJump && !isWallSliding)
         {
            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
            amountOfJumpLeft--;
+        }
+        else if(isWallSliding && movementInputDerection == 0 && canJump)
+        {
+            isWallSliding = false;
+            amountOfJumpLeft--;
+            Vector2 forceToAdd = new Vector2(wallHopForce * wallHopDirection.x * -facingDirection, wallHopDirection.y * wallHopForce);
+            rb.AddForce(forceToAdd, ForceMode2D.Impulse);
+        } else if((isWallSliding || isTouchingWall) && movementInputDerection != 0 && canJump)
+        {
+            isWallSliding = false;
+            amountOfJumpLeft--;
+            Vector2 forceToAdd = new Vector2(wallHopForce * wallJumpDirection.x * movementInputDerection, wallJumpDirection.y * wallJumpForce);
+            rb.AddForce(forceToAdd, ForceMode2D.Impulse);
         }
         
     }
 
     private void CheckIfCanJump()
     {
-        if (isGrounded && rb.velocity.y <= 0)
+        if ((isGrounded && rb.velocity.y <= 0) || isWallSliding )
         {
             amountOfJumpLeft = amountOfJump;
         }
